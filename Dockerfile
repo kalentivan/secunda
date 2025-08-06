@@ -41,4 +41,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
 # Запускаем с активацией виртуалки
-CMD ["/bin/bash", "-c", "source venv/bin/activate && /app/scripts/start.sh"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && exec uvicorn main:app --host 0.0.0.0 --port 8000"]
