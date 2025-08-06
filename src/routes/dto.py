@@ -38,8 +38,8 @@ class OrganizationUpdateDTO(BaseModel):
 
 
 class GeoSearchDTO(BaseModel):
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
     radius_km: Optional[float] = None  # For circular search
     lat_min: Optional[float] = None  # For rectangular search
     lat_max: Optional[float] = None

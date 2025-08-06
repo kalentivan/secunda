@@ -20,6 +20,9 @@ async def verify_api_key(api_key: str = Depends(api_key_header)):
 # Helper function to check activity level
 async def validate_activity_level(activity_id: UUID, session: AsyncSession) -> bool:
     activity = await session.get(Activity, activity_id)
-    if not activity or activity.level > 3:
+    if not activity:
+        raise HTTPException(status_code=404,
+                            detail="No organizations found for this activity tree")
+    if activity.level > 3:
         raise HTTPException(status_code=400, detail="Activity level exceeds maximum (3) or not found")
     return True
