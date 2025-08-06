@@ -12,11 +12,11 @@ services:
       - ./logs:/app/logs
       - ./stat:/app/stat
     depends_on:
-      - db
+      - secunda-db
     networks:
       - secunda-net
 
-  db:
+  secunda-db:
     image: postgres:17.4
     container_name: secunda-pgsql
     restart: always

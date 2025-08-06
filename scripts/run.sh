@@ -12,8 +12,8 @@ init() {
   REPO="https://github.com/kalentivan/secunda.git"
   NET="secunda-net"
   IMAGE="secunda-backend"
-  BASE_ENV="/root/conf/s.env"
-  BRANCH="dev"
+  BASE_ENV="/root/config/s.env"
+  BRANCH="master"
   LOAD_DOCKER="y"
   DEL_PROJECT="n"
 
@@ -337,7 +337,7 @@ main() {
     rem_folder  # удалит + создаст и зайдёт
   fi
 
-  cd "$FOLDER" || error_exit "Не удалось перейти в папку"
+  mkdir -p "$FOLDER" && cd "$FOLDER" || error_exit "Не удалось создать или перейти в папку"
   git_update      # клон или pull
   mkdir -p logs stat pgdata || error_exit "🛑Не удалось создать директории"
   init_net
