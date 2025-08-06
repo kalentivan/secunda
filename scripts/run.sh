@@ -8,18 +8,18 @@ init() {
   GREEN='\033[0;32m'
   NC='\033[0m'
 
-  FOLDER="meetings"
-  REPO="https://gitlab.autobrief.ru/autobriefgroup/backend/meetings_service.git"
-  NET="meeting-net"
-  IMAGE="meeting-backend"
-  BASE_ENV="/root/settings/meetings.env"
+  FOLDER="secunda"
+  REPO="https://github.com/kalentivan/secunda.git"
+  NET="secunda-net"
+  IMAGE="secunda-backend"
+  BASE_ENV="/root/conf/s.env"
   BRANCH="dev"
-  LOAD_DOCKER="n"
+  LOAD_DOCKER="y"
   DEL_PROJECT="n"
 
   CONTAINERS=(
-    "meeting-backend"
-    "meeting-psql"
+    "secunda-backend"
+    "secunda-psql"
   )
 }
 
