@@ -7,11 +7,12 @@ from typing import Any, cast
 import uvicorn
 from dotenv import load_dotenv
 
-from src.db.pre_load import load_json_fixtures, run_fixtures
+from src.db.pre_load import run_fixtures
 from src.db.session import AsyncSessionLocal
 
 load_dotenv()
 
+from src.core.logger import fastapi_logger
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware as CORS_Middleware
 from starlette.requests import Request

@@ -45,6 +45,7 @@ def route_get_log_api(response: Response,
                       name: Literal["error", "fastapi", "warnings", "info", "debug"]) -> FileResponse:
     """Получить файл лога с warning"""
     response.status_code = 200
+    Path()
     return FileResponse(
         path=f"{settings.LOG_PATH}/{name}.log",
         filename=f"{name}.log",
