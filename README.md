@@ -36,4 +36,4 @@
 
 
 * Развернут на http://87.228.96.158:8000/docs#/
-
+* APY_KEY - SECRET_KEY из .env
