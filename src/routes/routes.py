@@ -27,6 +27,7 @@ async def get_organizations_by_building(
         building_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
+    """Cписок всех организаций находящихся в конкретном здании"""
     stmt = select(Organization).where(
         Organization.building_id == building_id,
     )
@@ -45,6 +46,7 @@ async def get_organizations_by_activity(
         activity_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
+    """Список всех организаций, которые относятся к указанному виду деятельности"""
     await validate_activity_level(activity_id, session)
     stmt = (
         select(Organization)
@@ -67,6 +69,8 @@ async def get_organizations_by_geo(
         dto: GeoSearchDTO,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
+    """Cписок организаций, которые находятся в заданном радиусе/прямоугольной области
+    относительно указанной точки на карте. список зданий"""
     if dto.radius_km is not None:
         result = await session.execute(select(Building))
         buildings = result.scalars().all()
@@ -105,6 +109,7 @@ async def get_organization_by_id(
         organization_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> dict:
+    """Вывод информации об организации по её идентификатору"""
     organization = await session.get(Organization, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Организация не найдена")
@@ -120,6 +125,11 @@ async def get_organizations_by_activity_tree(
         activity_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
+    """Искать организации по виду деятельности.
+    Например, поиск по виду деятельности «Еда», которая находится на первом уровне дерева,
+    и чтобы нашлись все организации, которые относятся к видам деятельности, лежащим внутри.
+    Т.е. в результатах поиска должны отобразиться организации с видом деятельности
+    Еда, Мясная продукция, Молочная продукция"""
     await validate_activity_level(activity_id, session)
 
     activity_ids = [activity_id]
@@ -156,6 +166,7 @@ async def get_organizations_by_name(
         name: str,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
+    """Поиск организации по названию"""
     stmt = select(Organization).where(Organization.name.ilike(f"%{name}%"))
     result = await session.execute(stmt)
     if not (organizations := result.scalars().all()):
