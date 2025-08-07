@@ -327,7 +327,7 @@ init_net() {
 main() {
   set -euo pipefail
   init
-  parse
+  parse "$@"
   show_args
 
   if [[ "$LOAD_DOCKER" =~ ^[yY]$ ]]; then
@@ -339,14 +339,13 @@ main() {
     stop_container "$container"
   done
 
-
   docker system prune -f || error_exit "🛑Не удалось очистить кеш"
 
   if [[ "$DEL_PROJECT" =~ ^[yY]$ ]]; then
     rem_folder  # удалит + создаст и зайдёт
   fi
 
-  mkdir -p "$FOLDER" && cd "$FOLDER" || error_exit "Не удалось создать или перейти в папку"
+  cd "$FOLDER" || error_exit "Не удалось перейти в папку"
   git_update      # клон или pull
   mkdir -p logs stat pgdata || error_exit "🛑Не удалось создать директории"
   init_net
@@ -355,3 +354,4 @@ main() {
 }
 
 main "$@"
+
