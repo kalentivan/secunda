@@ -133,7 +133,8 @@ usage() {
 
 # Парсинг аргументов
 parse() {
-  while getopts ":f:r:n:i:e:b:h:s:d:" opt; do
+  local help_triggered=false
+  while getopts ":f:r:n:i:e:b:s:d:h" opt; do
     case $opt in
       f) FOLDER="$OPTARG" ;;
       r) REPO="$OPTARG" ;;
@@ -143,7 +144,10 @@ parse() {
       b) BRANCH="$OPTARG" ;;
       s) LOAD_DOCKER="$OPTARG" ;;
       d) DEL_PROJECT="$OPTARG" ;;
-      h) usage ;;
+      h)
+        help_triggered=true
+        usage
+        ;;
       \?)
         echo -e "${RED}❌ Неизвестный параметр: -$OPTARG${NC}" >&2
         usage
@@ -156,7 +160,12 @@ parse() {
         ;;
     esac
   done
-  }
+  # Выход после обработки всех аргументов, если была вызвана справка
+  if [ "$help_triggered" = true ]; then
+    show_args
+    exit 0
+  fi
+}
 
 # Остановить контейнер
 stop_container() {
@@ -289,7 +298,7 @@ rem_folder() {
   if [ -d "$FOLDER" ]; then
       read -p "🛑 Папка '$FOLDER' уже существует. Удалить её? [y/N]: " confirm
       case "$confirm" in
-          [yY][eE][sS]|[yY][нН])
+          [yY]|[нН])
               echo "🗑 Удаляю папку: $FOLDER"
               rm -rf "$FOLDER"
               echo "📁 Создание новой папки $FOLDER..."
