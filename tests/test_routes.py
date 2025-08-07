@@ -26,7 +26,7 @@ def test_get_organizations_by_building():
     # Тест с несуществующим зданием
     response = requests.get(f"{BASE_URL}/organizations/by_building/{str(UUID(int=0))}/", headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "No organizations found in this building"
+    assert response.json()["detail"] == "В здании не найдены организации"
 
 
 def test_get_organizations_by_activity():
@@ -62,7 +62,7 @@ def test_get_organizations_by_geo_radius():
     payload["longitude"] = 0.0
     response = requests.post(f"{BASE_URL}/organizations/by_geo/", json=payload, headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "No buildings found in the specified area"
+    assert response.json()["detail"] == "Не найдены здания в заданной области"
 
 
 def test_get_organizations_by_geo_rectangle():
@@ -99,7 +99,7 @@ def test_get_organization_by_id():
     # Тест с несуществующей организацией
     response = requests.get(f"{BASE_URL}/organizations/{str(UUID(int=0))}", headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "Organization not found"
+    assert response.json()["detail"] == "Организация не найдена"
 
 
 def test_get_organizations_by_activity_tree():
@@ -129,7 +129,7 @@ def test_get_organizations_by_name():
     # Тест с несуществующим именем
     response = requests.get(f"{BASE_URL}/organizations/by_name/Несуществующая/", headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "No organizations found with this name"
+    assert response.json()["detail"] == "Не найдена организация по названию"
 
 
 def test_create_organization():
@@ -151,7 +151,7 @@ def test_create_organization():
     payload["building_id"] = str(UUID(int=0))
     response = requests.post(f"{BASE_URL}/organizations/", json=payload, headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "Building not found"
+    assert response.json()["detail"] == "Здание не найдено"
 
 
 def test_update_organization():
@@ -169,7 +169,7 @@ def test_update_organization():
     # Тест с несуществующей организацией
     response = requests.patch(f"{BASE_URL}/organizations/{str(UUID(int=0))}/", json=payload, headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "Organization not found"
+    assert response.json()["detail"] == "Организация не найдена"
 
 
 def test_delete_organization():
@@ -193,7 +193,7 @@ def test_delete_organization():
     # Проверяем, что организация больше не доступна
     response = requests.get(f"{BASE_URL}/organizations/{r_data["id"]}", headers=HEADERS)
     assert response.status_code == 404
-    assert response.json()["detail"] == "Organization not found"
+    assert response.json()["detail"] == "Организация не найдена"
 
 
 def test_unauthorized_access():

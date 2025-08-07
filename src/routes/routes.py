@@ -92,7 +92,7 @@ async def get_organizations_by_geo(
         raise HTTPException(status_code=400, detail="Provide either radius_km or all rectangular coordinates")
 
     if not valid_building_ids:
-        raise HTTPException(status_code=404, detail="Не найдено зданий в заданной области")
+        raise HTTPException(status_code=404, detail="Не найдены здания в заданной области")
 
     stmt = select(Organization).where(Organization.building_id.in_(valid_building_ids))
     result = await session.execute(stmt)
