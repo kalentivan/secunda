@@ -16,19 +16,15 @@ if hasattr(asyncio, 'WindowsSelectorEventLoopPolicy'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def load_json_fixtures(session: AsyncSession, json_file_path: str):
-    """Load test data from a JSON file into the database."""
     try:
-        # Clear existing data
         for table in [OrganizationActivity, OrganizationPhone, Organization, Activity, Building]:
             await session.execute(table.__table__.delete())
         await session.commit()
         logger.info("Existing data cleared.")
 
-        # Read JSON file
         with open(json_file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # Load Buildings
         for building_data in data.get('buildings', []):
             building = Building(
                 id=UUID(building_data['id']),
@@ -54,7 +50,6 @@ async def load_json_fixtures(session: AsyncSession, json_file_path: str):
         await session.flush()
         logger.info("Activities loaded.")
 
-        # Load Organizations
         for org_data in data.get('organizations', []):
             organization = Organization(
                 id=UUID(org_data['id']),
@@ -77,7 +72,6 @@ async def load_json_fixtures(session: AsyncSession, json_file_path: str):
         await session.flush()
         logger.info("Organization phones loaded.")
 
-        # Load Organization Activities
         for org_activity_data in data.get('organization_activities', []):
             org_activity = OrganizationActivity(
                 organization_id=UUID(org_activity_data['organization_id']),

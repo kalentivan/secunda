@@ -27,19 +27,12 @@ async def get_organizations_by_building(
         building_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
-    """
-    
-    :param building_id: 
-    :param response: 
-    :param session: 
-    :return: 
-    """
     stmt = select(Organization).where(
         Organization.building_id == building_id,
     )
     result = await session.execute(stmt)
     if not (organizations := result.scalars().all()):
-        raise HTTPException(status_code=404, detail="No organizations found in this building")
+        raise HTTPException(status_code=404, detail="В здании не найдены организации")
     response.status_code = 200
     return [org.fields() for org in organizations]
 
@@ -52,7 +45,6 @@ async def get_organizations_by_activity(
         activity_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
-    """Get all organizations associated with a specific activity"""
     await validate_activity_level(activity_id, session)
     stmt = (
         select(Organization)
@@ -62,7 +54,7 @@ async def get_organizations_by_activity(
     result = await session.execute(stmt)
     organizations = result.scalars().all()
     if not organizations:
-        raise HTTPException(status_code=404, detail="No organizations found for this activity")
+        raise HTTPException(status_code=404, detail="Не найдено организации по активности")
     response.status_code = 200
     return [org.fields() for org in organizations]
 
@@ -75,9 +67,7 @@ async def get_organizations_by_geo(
         dto: GeoSearchDTO,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
-    """Get organizations within a radius or rectangular area"""
     if dto.radius_km is not None:
-        # Circular search
         result = await session.execute(select(Building))
         buildings = result.scalars().all()
         valid_building_ids = []
@@ -98,7 +88,7 @@ async def get_organizations_by_geo(
         raise HTTPException(status_code=400, detail="Provide either radius_km or all rectangular coordinates")
 
     if not valid_building_ids:
-        raise HTTPException(status_code=404, detail="No buildings found in the specified area")
+        raise HTTPException(status_code=404, detail="Не найдено зданий в заданной области")
 
     stmt = select(Organization).where(Organization.building_id.in_(valid_building_ids))
     result = await session.execute(stmt)
@@ -115,10 +105,9 @@ async def get_organization_by_id(
         organization_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> dict:
-    """Get organization details by ID"""
     organization = await session.get(Organization, organization_id)
     if not organization:
-        raise HTTPException(status_code=404, detail="Organization not found")
+        raise HTTPException(status_code=404, detail="Организация не найдена")
     response.status_code = 200
     return organization.fields()
 
@@ -131,7 +120,6 @@ async def get_organizations_by_activity_tree(
         activity_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
-    """Get organizations by activity and its descendants (up to level 3)"""
     await validate_activity_level(activity_id, session)
 
     activity_ids = [activity_id]
@@ -155,7 +143,7 @@ async def get_organizations_by_activity_tree(
     )
     result = await session.execute(stmt)
     if not (organizations := result.scalars().all()):
-        raise HTTPException(status_code=404, detail="No organizations found for this activity tree")
+        raise HTTPException(status_code=404, detail="Не найдена организация по активности")
     response.status_code = 200
     return [org.fields() for org in organizations]
 
@@ -168,11 +156,10 @@ async def get_organizations_by_name(
         name: str,
         session: AsyncSession = Depends(get_db)
 ) -> List[dict]:
-    """Search organizations by name (partial match)"""
     stmt = select(Organization).where(Organization.name.ilike(f"%{name}%"))
     result = await session.execute(stmt)
     if not (organizations := result.scalars().all()):
-        raise HTTPException(status_code=404, detail="No organizations found with this name")
+        raise HTTPException(status_code=404, detail="Не найдена организация по названию")
     response.status_code = 200
     return [org.fields() for org in organizations]
 
@@ -185,9 +172,8 @@ async def create_organization(
         dto: OrganizationCreateDTO,
         session: AsyncSession = Depends(get_db)
 ) -> dict:
-    """Create a new organization"""
     if not (building := await session.get(Building, dto.building_id)):
-        raise HTTPException(status_code=404, detail="Building not found")
+        raise HTTPException(status_code=404, detail="Здание не найдено")
 
     for activity_id in dto.activity_ids:
         await validate_activity_level(activity_id, session)
@@ -232,9 +218,8 @@ async def update_organization(
         dto: OrganizationUpdateDTO,
         session: AsyncSession = Depends(get_db)
 ) -> dict:
-    """Update an organization"""
     if not (organization := await session.get(Organization, organization_id)):
-        raise HTTPException(status_code=404, detail="Organization not found")
+        raise HTTPException(status_code=404, detail="Организация не найдена")
 
     update_data = dto.model_dump(exclude_unset=True)
 
@@ -244,7 +229,7 @@ async def update_organization(
             if field == "building_id":
                 building = await session.get(Building, value)
                 if not building:
-                    raise HTTPException(status_code=404, detail="Building not found")
+                    raise HTTPException(status_code=404, detail="Здание не найдено")
             setattr(organization, field, value)
 
     # Update phone numbers
@@ -303,10 +288,9 @@ async def delete_organization(
         organization_id: UUID,
         session: AsyncSession = Depends(get_db)
 ) -> dict:
-    """Soft delete an organization"""
     organization = await Organization.get_or_404(id=organization_id, session=session)
     if not await Organization.delete_where(id=organization_id, session=session):
-        raise HTTPException(status_code=404, detail="Organization not found")
+        raise HTTPException(status_code=404, detail="Организация не найдена")
 
     response.status_code = 200
     return organization.fields()
